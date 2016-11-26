@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{632617EB-AA0D-1756-6539-B0F4ABC808FC}") = "MandalaPainter", "Assembly-CSharp.csproj", "{401ABC65-307C-A6B0-F1D9-519395709E67}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{401ABC65-307C-A6B0-F1D9-519395709E67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{401ABC65-307C-A6B0-F1D9-519395709E67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{401ABC65-307C-A6B0-F1D9-519395709E67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{401ABC65-307C-A6B0-F1D9-519395709E67}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
