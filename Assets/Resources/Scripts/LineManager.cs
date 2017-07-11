@@ -4,6 +4,7 @@ using UnityEngine;
 
 
 
+
 public class LineDescription{
 	public List<GameObject> lineObjects = new List<GameObject>();
 	List<Vector3> linePoints = new List<Vector3>();

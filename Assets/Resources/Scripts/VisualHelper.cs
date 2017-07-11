@@ -12,18 +12,20 @@ public class VisualHelper : MonoBehaviour {
 	public Vector3 endPoint;
 	public float lineWidth = 0.1f;
 	public Color lineColor;
-	public bool drawLines = false;
+
 
 
 	//Mirror Lines
 	private GameObject DrawingLinesMirror;
 	private Transform DrawingLinesMirrorTransform;
 	private List<GameObject> DrawingLinesMirrorHolder = new List<GameObject>();
+	public bool drawMirrorLines = false;
 
 	//Start Lines
 	private GameObject DrawingLinesStart;
 	private Transform DrawingLinesStartTransform;
 	private List<GameObject> DrawingLinesStartHolder = new List<GameObject>();
+	public bool drawStartLines;
 
 
 	private int totalLineRenderers;
@@ -35,13 +37,12 @@ public class VisualHelper : MonoBehaviour {
 
 
 	void Start(){
-
 		totalLineRenderers = 100;
 		DrawingLinesMirror = GameObject.Find ("DrawingLinesMirror");
 		DrawingLinesMirrorTransform =  DrawingLinesMirror.GetComponent<Transform>();
 
 		DrawingLinesStart = GameObject.Find ("DrawingLinesStart");
-		DrawingLinesStartTransform =  DrawingLinesMirror.GetComponent<Transform>();
+		DrawingLinesStartTransform =  DrawingLinesStart.GetComponent<Transform>();
 
 
 		startPoint = new Vector3 (0.0f, 0.0f, -10.0f);
@@ -49,17 +50,22 @@ public class VisualHelper : MonoBehaviour {
 		linePoints.Add (startPoint);
 		linePoints.Add (endPoint);
 
+
 		createStraightLines (DrawingLinesStartHolder, DrawingLinesStartTransform);
 		updateSymmetryLines (DrawingLinesStartHolder, false);
+
 		createStraightLines (DrawingLinesMirrorHolder, DrawingLinesMirrorTransform);
 		updateSymmetryLines (DrawingLinesMirrorHolder, true);
+
+		hideHelperLines ();
+
 
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown (KeyCode.H)){
-			drawLines = !drawLines;
+			drawStartLines = !drawStartLines;
 			hideHelperLines ();
 		}
 
@@ -73,7 +79,22 @@ public class VisualHelper : MonoBehaviour {
 
 
 	public void hideHelperLines(){
-		DrawingLinesMirror.SetActive (drawLines);
+		
+		DrawingLinesMirror.SetActive (drawMirrorLines);
+		DrawingLinesStart.SetActive (drawStartLines);
+	}
+
+	public void hideMirrorLines(){
+		drawMirrorLines = !drawMirrorLines;
+		DrawingLinesMirror.SetActive (drawMirrorLines);
+	
+	}
+
+	public void hideStartLines(){
+		drawStartLines = !drawStartLines;
+	
+		DrawingLinesStart.SetActive (drawStartLines);
+
 	}
 
 
@@ -111,7 +132,7 @@ public class VisualHelper : MonoBehaviour {
 		for(int i = 0; i < totalLineRenderers; i++) {
 			//Instance and Parent
 			GameObject lineRenderer = ((GameObject)Instantiate (Resources.Load ("Prefabs/lineRendererObject")));
-			lineRenderer.transform.parent = DrawingLinesMirrorTransform;
+			lineRenderer.transform.parent = parent;
 			lineRendererHolders.Add(lineRenderer);
 
 			var holder = lineRenderer.GetComponent<LineRenderer> ();

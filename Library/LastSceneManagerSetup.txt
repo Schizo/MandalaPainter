@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Resources/Scenes/Debug.unity
+- path: Assets/Resources/Scenes/DrawMouseToTexture.unity
   isLoaded: 1
   isActive: 1

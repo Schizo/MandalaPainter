@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 4b1ba8b6a7841405eb4fbc8b61f1bcaf
+timeCreated: 1484051954
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - Material: {fileID: 2100000, guid: 4f8b45adddb33f044935ccd62994d112, type: 2}
+  - Camera: {instanceID: 0}
+  - LineTexture: {fileID: 2800000, guid: 984a88b5a0185474eb0468cd87af1f61, type: 3}
+  - LineTextureStartCap: {fileID: 2800000, guid: 5d8643942d985534b870d1a888ddadb4,
+      type: 3}
+  - LineTextureEndCap: {fileID: 2800000, guid: 77d11bbc2693a894daff6987aeb73dc8, type: 3}
+  - LineTextureRoundJoin: {fileID: 2800000, guid: 3ca762c8af32c584b93a17bd8acda6ac,
+      type: 3}
+  - GlowTexture: {instanceID: 0}
+  - GlowTextureStartCap: {instanceID: 0}
+  - GlowTextureEndCap: {instanceID: 0}
+  - GlowTextureRoundJoin: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

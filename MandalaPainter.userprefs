@@ -1,9 +1,15 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/VisualDebug.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FastLineRenderer/Script/FastLineRenderer.cs">
     <Files>
-      <File FileName="Assets/Resources/Scripts/LineDrawer.cs" Line="45" Column="1" />
-      <File FileName="Assets/VisualDebug.cs" Line="50" Column="70" />
+      <File FileName="Assets/Resources/Scripts/LineDrawer.cs" Line="33" Column="1" />
+      <File FileName="Assets/FastLineRenderer/Script/FastLineRenderer.cs" Line="1061" Column="4" />
+      <File FileName="Assets/FastLineRenderer/Script/PathGenerator.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/ColorPickerAdvanced.cs" Line="1" Column="1" />
+      <File FileName="Assets/MouseOverEvents.cs" Line="1" Column="1" />
+      <File FileName="Assets/Resources/Scripts/LineManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/Resources/Scripts/DrawDebugger.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Controls/BaseControl.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
