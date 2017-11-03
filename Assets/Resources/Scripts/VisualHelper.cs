@@ -37,7 +37,10 @@ public class VisualHelper : MonoBehaviour {
 
 
 	void Start(){
+		//Set of Maximum Lines to Render
 		totalLineRenderers = 100;
+
+
 		DrawingLinesMirror = GameObject.Find ("DrawingLinesMirror");
 		DrawingLinesMirrorTransform =  DrawingLinesMirror.GetComponent<Transform>();
 
@@ -99,7 +102,7 @@ public class VisualHelper : MonoBehaviour {
 
 
 	public void updateSymmetryLines(List<GameObject> lineRendererHolders, bool midPoint){
-		numOfLineRenderers = GameObject.Find("DrawingBoard").GetComponent<LineDrawer> ().numOfLineRenderers;
+		numOfLineRenderers = GameObject.Find("DrawingBoard").GetComponent<VectorDrawer> ().numOfLineRenderers;
 		var counter = 0;
 		float angle = (360 / numOfLineRenderers);
 

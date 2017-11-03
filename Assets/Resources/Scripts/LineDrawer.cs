@@ -1,31 +1,27 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
-using System.Linq;
 using UnityEngine.UI;
-using DigitalRuby.FastLineRenderer;
-//using ExtensionMethods;
 
 public class LineDrawer : MonoBehaviour
 {
 	List<Vector3> linePoints = new List<Vector3>();
+	//Vector3[] linePoints;
 	public float startWidth = .5f;
 	public float endWidth = .5f;
 	public float threshold = .2f;
-	private float brushsize = 0.5f;
+	public float brushsize = 0.5f;
+	public int numOfLineRenderers = 32;
+	public bool clickStarted = false;
+	public bool enableVectorDrawer = false;
+	public bool enableTextureDrawer = true;
+
+	public List<List<Vector3>> allPoints; 
 
 
 	public Vector3 mirror = new Vector3(-1.0f, 1.0f, 1.0f);
-	List<GameObject> lineRendererHolder = new List<GameObject> ();
 
-	public int numOfLineRenderers = 2;
-	private bool clickStarted;
 
-	public bool setRandomColor;
-	public int currentIndex = 0;
-	private GameObject drawingLines;
-	public Color lineColor;
-	Material testMaterial;
+
 	bool commandPressed = false;
 	bool mirrorSymmetry = true;
 	private int maxNumSymmetries = 92;
@@ -34,68 +30,41 @@ public class LineDrawer : MonoBehaviour
 	Vector3 lastPos = Vector3.one * float.MaxValue;
 
 	private LineManager lineManager = new LineManager ();
-	private Dictionary<int, int> divisorMap;
-	private Transform drawingLinesParent;
-	private Dropdown symmetryDropDown;
+
 	private bool drawStraight = false;
-	public bool drawUnityLineRenderer;
-	public bool drawFastLineRenderer;
-	public Collider drawingBoard;
-	public Color colorPickerTint = Color.black;
 	public Vector3 centerPosition;
-	private Mesh currentMesh;
-	//public Texture2D texture;
-
 	private TexturePainter texturePainter;
+	private VectorDrawer vectorDrawer;
 
-
-
+	//UI Elements
+	private Dropdown symmetryDropDown;
 	public Slider myslider;
-
-	void Awake()
-	{
-		divisorMap = new Dictionary<int, int> () {
-			{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 8}, 
-			{8, 9}, {9, 10}, {10, 12}, {11, 15}, {12, 18}, {13, 20}, 
-			{14, 24}, {15, 30}, {16, 36}, {17, 40}, {18, 45}, {19, 60},
-			{20, 72}, {21, 90}, {22, 120}, {23, 180}, {24, 360}
-
-		};
-	}
-
 
 
 	void Start(){
 
-
-
-
-		///Drawing to A texture
+		//Drawing to A texture
 		texturePainter = new TexturePainter();
 
-
-
 		GameObject plane = GameObject.FindGameObjectWithTag ("Player");
+		if (!enableTextureDrawer)
+			plane.SetActive (false);
 		plane.GetComponent<Renderer> ().material.mainTexture = texturePainter.texture;
 
-			
-
-		
-	
 		centerPosition = new Vector3 (100.0f, 100.0f, 0.0f);
 		myslider = GameObject.Find ("Slider").GetComponent<Slider>();
 
 		symmetryDropDown = GameObject.Find ("Dropdown").GetComponent<Dropdown>();
 		List<System.String> options = new List<System.String> ();
+
+		//Populate UI
 		for (int i = 0; i <  maxNumSymmetries; i++)
 			options.Add (i.ToString ());
 			
 		symmetryDropDown.AddOptions (options);
-		drawingLines = GameObject.FindGameObjectWithTag("drawingLinesParent");
-		drawingLinesParent =  drawingLines.GetComponent<Transform>();
-		drawingBoard = GameObject.FindGameObjectWithTag ("drawingBoard").GetComponent<Collider>();
-		colorPickerTint = GameObject.FindGameObjectWithTag ("colorPickerUI").GetComponent<ColorPickerAdvanced> ().RGBAColor;
 
+		vectorDrawer = this.GetComponent<VectorDrawer> ();
+		//vectorDrawer.linePoints = linePoints;
 
 	}
 
@@ -104,168 +73,15 @@ public class LineDrawer : MonoBehaviour
 		
 		if (isDrawArea ()) {
 			InputInteractions ();
-			DrawInteractions ();
+			//vectorDrawer.DrawInteractions ();
+			DrawInteractions();
 		}
-	}
-
-	public void setBrushSize(float brushSize){
-		startWidth = brushSize;
-		endWidth = brushSize;
-		brushsize = brushSize;
-	}
-
-	public void createDrawContainer(List<GameObject> lineRenderers){
-		var drawCanvas = new GameObject ();
-		drawCanvas.name = System.String.Format("LineDrawContainer{0}", lineManager.getStatus());
-		drawCanvas.transform.parent = drawingLinesParent;
-		drawingLinesParent =  drawingLines.GetComponent<Transform>();
-		foreach (var linerenderer in lineRenderers)
-			linerenderer.transform.parent = drawCanvas.transform;
-		Debug.Log ("CreateDrawContainer...");
-	}
-
-	public void deleteDrawing(){
-		Object.Destroy (GameObject.FindGameObjectWithTag("drawingLinesParent"));
-		drawingLines = new GameObject ();
-		drawingLines.name = "DrawingLines";
-		drawingLines.tag = "drawingLinesParent";
-		drawingLinesParent =  drawingLines.GetComponent<Transform>();
-		Debug.Log ("Clearing...");
-	}
-
-	public void undo(){
-		Debug.Log ("Undoing...");
-		var drawCanvas = System.String.Format("LineDrawContainer{0}", lineManager.getStatus());
-		Object.Destroy (GameObject.Find (drawCanvas));
-		lineManager.pop ();
-	
-
-	}
-
-	public void pushUndoStack(List<GameObject> lineRendererHolder)
-	{
-		lineManager.addLine (lineRendererHolder, linePoints, linePoints.Count);
-	}
-
-	public void setNumberOfLines(int n){
-		numOfLineRenderers = n;
-		Debug.Log ("Setting Number of Lines...");
-	}
-
-	void DrawInteractions(){
-
-		//We start drawing
-		var viewPortPosition = Camera.main.ScreenToViewportPoint (Input.mousePosition);
-
-
-		if (Input.GetMouseButtonDown (0) && viewPortPosition.x > 0.1) {
-			RaycastHit hit;
-			if (Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit)) {
-				//if (hit.collider == drawingBoard)
-				Debug.Log (hit.collider);
-			}
-
-			clickStarted = true;
-
-			for(int index = 0; index < numOfLineRenderers; index++){
-				var lineRendererInstance = (GameObject)Instantiate (Resources.Load ("Prefabs/lineRendererObjectFast"));
-				if (drawUnityLineRenderer) {
-					lineRendererInstance.GetComponent<LineRenderer> ().material = testMaterial;
-				}
-
-				lineRendererInstance.transform.parent = drawingLinesParent;
-				lineRendererHolder.Add(lineRendererInstance);
-			}
-
-			pushUndoStack (lineRendererHolder);
-			createDrawContainer(lineRendererHolder);
-			DrawHandle();
-
-		//We are still drawing
-		} else if (clickStarted) {
-			DrawHandle ();
-		}
-
-		//Mouse down keep record of the curves
-		if (Input.GetMouseButtonUp (0)) {
-			List<Vector3> pong = new List<Vector3> (linePoints);
-			//smoothCurve (linePoints, pong, 5);
-			smoothGauss (linePoints, pong);
-			drawMandala ();
-
-			clickStarted = false;
-			colorPickerTint = GameObject.FindGameObjectWithTag ("colorPickerUI").GetComponent<ColorPickerAdvanced> ().RGBAColor;
-
-			linePoints.Clear ();
-			lineRendererHolder.Clear ();
-
-
-
-			texturePainter.texture.Apply (false);
-		}
-	}
-
-	void smoothGauss(List<Vector3> outLine, List<Vector3> line){
-		Debug.Log ("smoooth");
-
-
-		Vector3 l1, l2, l3, l4, r1, r2, r3, r4, selfVal;
-		//Vector3 x;
-
-
-		for (int i = 4; i < line.Count ()-4; i++) {
-			
-			l1 = line[i - 1] * 0.05f;
-			l2 = line[i - 2] * 0.09f;
-			l3 = line[i - 3] * 0.12f;
-			l4 = line[i - 4] * 0.15f;
-
-			r1 = line[i + 1] * 0.05f;
-			r2 = line[i + 2] * 0.09f;
-			r3 = line[i + 3] * 0.12f;
-			r4 = line[i + 4] * 0.15f;
-
-			selfVal = line [i] * 0.18f;
-			
-			outLine[i] = l1 + l2 + l3 + l4 + r1 + r2 + r3 + r4 + selfVal;
-
-
-		}
-
-		line = outLine;
-
-	}
-
-
-
-	void smoothCurve(List<Vector3> ping, List<Vector3> pong, int times){
-		Debug.Log ("smoooth");
-
-		if (times < 1)
-			return;
-
-		for (int i = 1; i < ping.Count ()-1; i++) {
-			
-			pong [i] = (ping [i - 1] + ping [i + 1]) / 2; //average neighbours
-
-		}
-		smoothCurve (pong, ping, times - 1);
-				
-	}
-
-
-	void DrawHandle(){
-		InputInteractions ();
-		collectCurvePoints ();
-		drawMandala ();
-
-	
 	}
 
 	void InputInteractions(){
+
+		//Zoom Camera
 		Camera.main.orthographicSize += Input.GetAxis ("Mouse ScrollWheel");
-
-
 
 
 		if (Input.GetKeyDown ("x")) {
@@ -277,10 +93,9 @@ public class LineDrawer : MonoBehaviour
 		} else if (Input.GetKeyUp (KeyCode.LeftCommand))
 			commandPressed = false;
 
-		//if (Input.GetKeyDown ("z") && commandPressed) {
 		if (Input.GetKeyDown ("z")) {
 			Debug.Log ("Performing undo");
-			undo ();
+			vectorDrawer.undo ();
 		}
 		if (Input.GetKeyDown(KeyCode.UpArrow))
 			symmetryDropDown.value += 1;
@@ -297,6 +112,167 @@ public class LineDrawer : MonoBehaviour
 		}
 	}
 
+	public void DrawInteractions(){
+
+		//We start drawing
+		var viewPortPosition = Camera.main.ScreenToViewportPoint (Input.mousePosition);
+
+
+		if (!clickStarted && Input.GetMouseButtonDown (0) && viewPortPosition.x > 0.1) {
+			clickStarted = true;
+
+			if (enableVectorDrawer)
+				vectorDrawer.DrawInteractionVector (linePoints);
+
+		} 
+		else if (clickStarted) {
+			DrawHandle ();
+		}
+
+		//Mouse down keep record of the curve
+
+
+
+		if (Input.GetMouseButtonUp (0)) {
+			MouseUp ();
+
+
+
+		}
+	}
+
+
+	public void MouseUp(){
+		clickStarted = false;
+
+		List<Vector3> pong = new List<Vector3> (linePoints);
+		VectorDrawer.smoothGauss (linePoints, pong);
+		Draw (); 
+
+
+		//vectorDrawer.undo ();
+
+
+		//			if (enableTextureDrawer) {
+		//				LateDraw ();
+		//
+		//				texturePainter.texture.Apply (false);
+		//			}
+
+
+
+		//colorPickerTint = GameObject.FindGameObjectWithTag ("colorPickerUI").GetComponent<ColorPickerAdvanced> ().RGBAColor;
+
+		//allPoints.Add (linePoints);
+		//linePoints = new List<Vector3> ();
+
+
+		linePoints.Clear ();
+		vectorDrawer.Clear ();
+
+
+	}
+
+	public void DrawHandle(){
+		InputInteractions ();
+		collectCurvePoints ();
+		Draw ();
+		//vectorDrawer.drawMandala ();
+		//texturePainter.texture.Apply(false);
+
+	
+	}
+
+	public void Draw(){
+		int counter = 0;
+
+
+
+
+		for (int i = 0; i < numOfLineRenderers; i++){
+
+			calcSymmetricLine (counter, linePoints);
+
+			if (enableVectorDrawer)
+				vectorDrawer.drawMandala (vectorDrawer.lineRendererHolder[i].GetComponent<LineRenderer>(), linePoints);
+
+			counter++;
+		}		
+	}
+
+//	public void LateDraw(){
+//		int counter = 0;
+//
+//		//var points = new Vector3[linePoints.Count];
+//		for (int i = 0; i < numOfLineRenderers; i++){
+//
+//			calcSymmetricLine (counter, linePoints);
+//			texturePainter.drawTexture (linePoints);
+//			counter++;
+//		}		
+//		
+//	}
+//
+
+
+	public  List<Vector3> calcSymmetricLine(int cycle, List<Vector3> points)
+	{
+
+		float scale = 1.0f;
+		Vector3 vectorScale = new Vector3 (scale, 1.0f, 1.0f);
+
+
+		for (int i = 0; i < points.Count; i++) {
+			float angle = cycle*(360.0f/numOfLineRenderers);
+
+			//Inner Symmetry on / off
+			if (numOfLineRenderers % 2 == 0 && mirrorSymmetry){
+				if (cycle % 2 != 0) 
+				{
+					scale = -1.0f;
+					vectorScale.x = scale;
+				}
+			}
+//			Debug.Log (angle);
+
+
+			points[i] = Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), vectorScale);
+
+
+		}
+		return points;
+
+	}
+
+//	public  Vector3 [] calcSymmetricLine(int cycle, Vector3[] points)
+//	{
+//
+//		float scale = 1.0f;
+//
+//
+//		for (int i = 0; i < linePoints.Count; i++) {
+//			float angle = cycle*(360.0f/numOfLineRenderers);
+//
+//			//Inner Symmetry on / off
+//			if (numOfLineRenderers % 2 == 0 && mirrorSymmetry){
+//				if (cycle % 2 != 0) 
+//				{
+//					scale = -1.0f;
+//				}
+//			}
+//
+//			Vector3 scaleMe = new Vector3 (scale, 1.0f, 1.0f);
+//			points[i] = Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), scaleMe);
+//
+//
+//		}
+//		return points;
+//
+//	}
+//
+
+
+
 	bool isDrawArea(){
 
 		Vector3 screenPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -307,8 +283,7 @@ public class LineDrawer : MonoBehaviour
 			return true;
 		return false;
 	}
-
-
+		
 
 	void collectCurvePoints(){
 		Vector3 mousePos = Input.mousePosition;
@@ -324,98 +299,21 @@ public class LineDrawer : MonoBehaviour
 			return;
 
 		lastPos = mouseWorld;
-		if(linePoints == null)
-			linePoints = new List<Vector3>();
+		if (linePoints == null) {
+			Debug.Log ("LinePoints == Null");
+			linePoints = new List<Vector3> ();
+		}
 
 		linePoints.Add(mouseWorld);
 	}
 
-	private void drawFastLine(FastLineRenderer fastLineRenderer, Vector3 [] points, int counter){
-		fastLineRenderer.Reset ();
-		FastLineRendererProperties props = new FastLineRendererProperties ();
-		props.Radius = brushsize;
+	public void setBrushSize(float brushSize){
 
-		props.LineJoin = FastLineRendererLineJoin.Round;
-
-
-		//props.LineJoin = FastLineRendererLineJoin.Round;
-		Bounds gridBounds = new Bounds();
-
-
-
-			fastLineRenderer.AddLine (props, points, (FastLineRendererProperties _props) => {}, true, true);
-
-
-		fastLineRenderer.TintColor = colorPickerTint;
-		fastLineRenderer.Apply(true);
-
-
+		vectorDrawer.setBrushSize (brushSize);
+		texturePainter.setBrushSize (brushsize);
+		Debug.Log ("CMD: Setting brushSize");
 	}
 
 
-	void drawMandala(){
-		int counter = 0;
-		foreach (var lineRenderer in lineRendererHolder) {
-			var fastLineRenderer = lineRenderer.GetComponent<FastLineRenderer>();
-
-			//INit Lines to be drawn
-			Vector3[] points = new Vector3[linePoints.Count];
-			points = calcSymmetricLine (counter, linePoints.Count);	
-
-			if (drawUnityLineRenderer) {
-				var holder = lineRenderer.GetComponent<LineRenderer>();
-				holder.useWorldSpace = false;
-				holder.positionCount = linePoints.Count;
-				holder.SetPositions(points);
-				holder.SetPositions(calcSymmetricLine(counter, linePoints.Count));
-				holder.material.color = lineColor;
-				holder.startWidth = startWidth;
-				holder.endWidth = endWidth;
-				holder.numCornerVertices = 4;
-				holder.numCapVertices = 2;
-			
-			}
-
-
-
-			if (drawFastLineRenderer) {
-				drawFastLine (fastLineRenderer, points, counter);
-			}
-
-			texturePainter.drawTexture (points);
-
-
-
-			counter++;
-		}
-	}
-
-	Vector3 [] calcSymmetricLine(int cycle, int pointCount)
-	{
-		Vector3 [] points = new Vector3[linePoints.Count];
-		float scale = 1.0f;
-
-
-		for (int i = 0; i < linePoints.Count; i++) {
-			float angle = cycle*(360.0f/numOfLineRenderers);
-
-			//Inner Symmetry on / off
-			if (numOfLineRenderers % 2 == 0 && mirrorSymmetry){
-				if (cycle % 2 != 0) 
-				{
-					scale = -1.0f;
-				}
-			}
-
-
-			Vector3 scaleMe = new Vector3 (scale, 1.0f, 1.0f);
-			points[i] = Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), scaleMe);
-
-
-
-		}
-		return points;
-
-	}
 
 }

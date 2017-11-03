@@ -40,7 +40,7 @@ public class LineManager{
 		
 		for (int i = 0; i < lineDescriptions.Count; i++) {
 			for (int j = 0; i < lineDescriptions [i].lineObjects.Count; j++) {
-			Debug.Log ("hey");
+
 			Object.Destroy (lineDescriptions [i].lineObjects [j]);
 			}
 		}
