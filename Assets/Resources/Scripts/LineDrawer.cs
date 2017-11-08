@@ -20,8 +20,7 @@ public class LineDrawer : MonoBehaviour
 	public Vector3 mirror = new Vector3(-1.0f, 1.0f, 1.0f);
 
 
-
-	bool commandPressed = false;
+    
 	public bool mirrorSymmetry = true;
 	private int maxNumSymmetries = 92;
 
@@ -31,7 +30,6 @@ public class LineDrawer : MonoBehaviour
 	private LineManager lineManager = new LineManager ();
 
 	private bool drawStraight = false;
-	public Vector3 centerPosition;
 	private TexturePainter texturePainter;
 	private VectorDrawer vectorDrawer;
 
@@ -50,7 +48,7 @@ public class LineDrawer : MonoBehaviour
 			plane.SetActive (false);
 		plane.GetComponent<Renderer> ().material.mainTexture = texturePainter.texture;
 
-		centerPosition = new Vector3 (100.0f, 100.0f, 0.0f);
+
 		myslider = GameObject.Find ("Slider").GetComponent<Slider>();
 
 		symmetryDropDown = GameObject.Find ("Dropdown").GetComponent<Dropdown>();
@@ -70,9 +68,9 @@ public class LineDrawer : MonoBehaviour
 
 	void Update()
 	{
-		
-		if (isDrawArea ()) {
-			InputInteractions ();
+        InputInteractions();
+        if (isDrawArea ()) {
+			
 			DrawInteractions();
 		}
 	}
@@ -83,14 +81,6 @@ public class LineDrawer : MonoBehaviour
 		Camera.main.orthographicSize += Input.GetAxis ("Mouse ScrollWheel");
 
 
-		if (Input.GetKeyDown ("x")) {
-			Debug.Log(lineManager.getStatus());
-		}
-		if (Input.GetKeyDown (KeyCode.LeftCommand)) {
-			commandPressed = true;
-			Debug.Log ("Command Key Pressed");
-		} else if (Input.GetKeyUp (KeyCode.LeftCommand))
-			commandPressed = false;
 
 		if (Input.GetKeyDown ("z")) {
 			Debug.Log ("Performing undo");
@@ -192,14 +182,14 @@ public class LineDrawer : MonoBehaviour
 	public void Draw(){
 			for (int counter = 0; counter < numOfLineRenderers; counter++){
 
-			calcSymmetricLine (counter, linePoints);
+			   var lines = calcSymmetricLine (counter);
 
-			if (enableVectorDrawer)
-				vectorDrawer.drawMandala (vectorDrawer.lineRendererHolder[counter].GetComponent<LineRenderer>(), linePoints);
+			    if (enableVectorDrawer)
+				    vectorDrawer.drawMandala (vectorDrawer.lineRendererHolder[counter].GetComponent<LineRenderer>(), lines);
 
-			if (enableTextureDrawer) {
-					texturePainter.drawTexture(linePoints);
-					texturePainter.texture.Apply (false);
+			    if (enableTextureDrawer) {
+					    texturePainter.drawTexture(lines);
+					    texturePainter.texture.Apply (false);
 				
 			}
 				
@@ -209,43 +199,47 @@ public class LineDrawer : MonoBehaviour
 		
 
 
-	public  List<Vector3> calcSymmetricLine(int cycle, List<Vector3> points)
+	public  List<Vector3> calcSymmetricLine(int cycle)
 	{
 
 		float scale = 1.0f;
-		Vector3 vectorScale = new Vector3 (scale, 1.0f, 1.0f);
+
+        List<Vector3> temp = new List<Vector3>();
+        Vector3 vectorScale = new Vector3 (scale, 1.0f, 1.0f);
 
 
-		for (int i = 0; i < points.Count; i++) {
+
+		for (int i = 0; i < linePoints.Count; i++) {
 			float angle = cycle*(360.0f/numOfLineRenderers);
 
-			//Inner Symmetry on / off
-			if (numOfLineRenderers % 2 == 0 && mirrorSymmetry){
-				if (cycle % 2 != 0) 
-				{
-					scale = -1.0f;
-					vectorScale.x = scale;
-				}
-			}
-			Debug.Log (angle);
+            //Inner Symmetry on / off
+            if (numOfLineRenderers % 2 == 0 && mirrorSymmetry)
+            {
+                if (cycle % 2 != 0)
+                {
+                    scale = -1.0f;
+                    vectorScale.x = scale;
+                }
+            }
 
-
-			points[i] = (Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), vectorScale));
+            temp.Add((Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), vectorScale)));
+            //linePoints[i] = (Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), vectorScale));
 
 
 		}
-		return points;
+		return temp;
 
 	}
 		
 
 	bool isDrawArea(){
+      
+		Vector3 screenPos = Camera.main.ScreenToViewportPoint(Input.mousePosition);
 
-		Vector3 screenPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
 		screenPos = new Vector2(screenPos.x, screenPos.y);
 
-		if (screenPos.x > -470 && screenPos.x < 470 && screenPos.y > -300 && screenPos.y < 300)
+        if (screenPos.y < 0.9)
 			return true;
 		return false;
 	}

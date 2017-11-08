@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
-using DigitalRuby.FastLineRenderer;
 
 public class VectorDrawer:MonoBehaviour
 	{
@@ -25,7 +24,6 @@ public class VectorDrawer:MonoBehaviour
 		public Transform drawingLinesParent;
 		public GameObject drawingLines;
 		//private Dropdown symmetryDropDown;
-		private bool drawStraight = false;
 		public Collider drawingBoard;
 		public Color colorPickerTint = Color.black;
 		public Vector3 centerPosition;
@@ -47,8 +45,7 @@ public class VectorDrawer:MonoBehaviour
 			drawingLines = GameObject.FindGameObjectWithTag("drawingLinesParent");
 			drawingLinesParent =  drawingLines.GetComponent<Transform>();
 			drawingBoard = GameObject.FindGameObjectWithTag ("drawingBoard").GetComponent<Collider>();
-			colorPickerTint = GameObject.FindGameObjectWithTag ("colorPickerUI").GetComponent<ColorPickerAdvanced> ().RGBAColor;
-
+	
 		
 		}
 		public static void smoothGauss(List<Vector3> outLine, List<Vector3> line){
@@ -117,15 +114,7 @@ public class VectorDrawer:MonoBehaviour
 	
 			}
 
-	public void createDrawContainer(List<GameObject> lineRenderers){
-		var drawCanvas = new GameObject ();
-		drawCanvas.name = System.String.Format("LineDrawContainer{0}", lineManager.getStatus());
-		drawCanvas.transform.parent = drawingLinesParent;
-		drawingLinesParent =  drawingLines.GetComponent<Transform>();
-		foreach (var linerenderer in lineRenderers)
-			linerenderer.transform.parent = drawCanvas.transform;
-		Debug.Log ("CreateDrawContainer...");
-	}
+
 
 	public void deleteDrawing(){
 		Object.Destroy (GameObject.FindGameObjectWithTag("drawingLinesParent"));
@@ -137,12 +126,19 @@ public class VectorDrawer:MonoBehaviour
 	}
 
 	public void undo(){
-		Debug.Log ("Undoing...");
-		var drawCanvas = System.String.Format("LineDrawContainer{0}", lineManager.getStatus());
-		Object.Destroy (GameObject.Find (drawCanvas));
-		lineManager.pop ();
 
-	}
+        
+        int headElement = lineManager.getCount() - 1;
+        Debug.Log(headElement);
+        var drawCanvas = System.String.Format("LineDrawContainer{0}", headElement);
+        Debug.Log(drawCanvas);
+        // lineManager.pop();
+        Object.Destroy (GameObject.Find (lineManager.removeFromUndo()));
+
+        Debug.Log(string.Format("Deleting: {0}", drawCanvas));
+     
+
+    }
 
 	public void pushUndoStack(List<GameObject> lineRendererHolder, List<Vector3> points)
 	{
@@ -172,9 +168,27 @@ public class VectorDrawer:MonoBehaviour
 			lineRendererHolder.Add(lineRendererInstance);
 		}
 
-		pushUndoStack (lineRendererHolder, points);
+		
 		createDrawContainer(lineRendererHolder);
-	}
+
+        pushUndoStack(lineRendererHolder, points);
+    }
+
+    public void createDrawContainer(List<GameObject> lineRenderers)
+    {
+        var drawCanvas = new GameObject();
+        string name = System.String.Format("LineDrawContainer{0}", lineManager.getHash());
+        //lineManager.addToUndo(string.Copy(name));
+        drawCanvas.name = name;
+       
+        drawCanvas.transform.parent = drawingLinesParent;
+        drawingLinesParent = drawingLines.GetComponent<Transform>();
+        foreach (var linerenderer in lineRenderers)
+            linerenderer.transform.parent = drawCanvas.transform;
+
+     
+        Debug.Log("CreateDrawContainer...");
+    }
 
 
 

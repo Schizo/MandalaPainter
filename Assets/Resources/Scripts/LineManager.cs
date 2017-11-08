@@ -5,31 +5,40 @@ using UnityEngine;
 
 
 
-public class LineDescription{
-	public List<GameObject> lineObjects = new List<GameObject>();
-	List<Vector3> linePoints = new List<Vector3>();
-	int numOfPoints = 0;
-
-	public LineDescription(List<GameObject> lineRenderers, List<Vector3> linePoints, int numOfPoints){
-		this.lineObjects = lineRenderers;
-		this.linePoints = linePoints;
-		this.numOfPoints = numOfPoints;
-	
-	}
-}
 
 public class LineManager{
 	public List<LineDescription> lineDescriptions = new List<LineDescription>();
 	public int drawCounter{ get; set; }
+    int hash = 0;
+    int count = 0 ;
 
-	public void addLine(List<GameObject> lineRenderers, List<Vector3> linePoints, int numOfPoints){
+    Stack<string> undo;
+    public void addLine(List<GameObject> lineRenderers, List<Vector3> linePoints, int numOfPoints){
 		LineDescription lineDescription = new LineDescription (lineRenderers, linePoints, numOfPoints);
 		lineDescriptions.Add (lineDescription);
+        hash += 1;
 	}
 
-	public int getStatus(){
-		return lineDescriptions.Count;
-	}
+    public void addToUndo(string containerName)
+    {
+        undo.Push(containerName);
+    }
+
+    public string  removeFromUndo()
+    {
+        return undo.Pop();
+    }
+
+	public int getHash(){
+        return hash;
+
+    }
+
+    public int getCount()
+    {
+        return lineDescriptions.Count;
+    }
+    
 
 	public void pop(){
 		lineDescriptions.RemoveAt (lineDescriptions.Count - 1);
@@ -48,3 +57,18 @@ public class LineManager{
 }
 
 
+public class LineDescription
+{
+    public List<GameObject> lineObjects = new List<GameObject>();
+    List<Vector3> linePoints = new List<Vector3>();
+    int numOfPoints = 0;
+
+
+    public LineDescription(List<GameObject> lineRenderers, List<Vector3> linePoints, int numOfPoints)
+    {
+        this.lineObjects = lineRenderers;
+        this.linePoints = linePoints;
+        this.numOfPoints = numOfPoints;
+
+    }
+}

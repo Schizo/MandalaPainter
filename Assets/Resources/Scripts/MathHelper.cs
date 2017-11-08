@@ -5,6 +5,7 @@ using UnityEngine;
 public static class MathHelper  {
 	public static Vector3 rotatePoint(Vector3 position, float angle)
 	{
+ 
 		float s = Mathf.Sin(Mathf.Deg2Rad * angle) ;
 		float c = Mathf.Cos(Mathf.Deg2Rad * angle) ;
 

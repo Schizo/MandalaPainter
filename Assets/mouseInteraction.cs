@@ -158,7 +158,7 @@ public class mouseInteraction : MonoBehaviour {
 
 				int x = (int)(viewPortPosition.x * Screen.currentResolution.width);
 				int y = (int)(viewPortPosition.y * Screen.currentResolution.height);
-				Vector3 point = new Vector3 (x, y, -10.0f);
+			
 
 				drawPoints.Add (mouseWorld);
 				drawPointsTexture.Add(new Vector3(x, y, -10.0f));
@@ -187,7 +187,7 @@ public class mouseInteraction : MonoBehaviour {
 //					Debug.Log (point);
 //				}
 
-				Vector2 test = new Vector3(1.0f, 1.0f);
+	
 				lr.positionCount = drawPoints.Count;
 				lr.SetPositions (drawPoints.ToArray ());
 
