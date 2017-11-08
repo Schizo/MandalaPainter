@@ -5,10 +5,9 @@ using UnityEngine.UI;
 public class LineDrawer : MonoBehaviour
 {
 	List<Vector3> linePoints = new List<Vector3>();
-	//Vector3[] linePoints;
 	public float startWidth = .5f;
 	public float endWidth = .5f;
-	public float threshold = .2f;
+	public float threshold = .1f;
 	public float brushsize = 0.5f;
 	public int numOfLineRenderers = 32;
 	public bool clickStarted = false;
@@ -23,7 +22,7 @@ public class LineDrawer : MonoBehaviour
 
 
 	bool commandPressed = false;
-	bool mirrorSymmetry = true;
+	public bool mirrorSymmetry = true;
 	private int maxNumSymmetries = 92;
 
 
@@ -65,6 +64,7 @@ public class LineDrawer : MonoBehaviour
 
 		vectorDrawer = this.GetComponent<VectorDrawer> ();
 		//vectorDrawer.linePoints = linePoints;
+		vectorDrawer.setNumberOfLines(numOfLineRenderers);
 
 	}
 
@@ -73,7 +73,6 @@ public class LineDrawer : MonoBehaviour
 		
 		if (isDrawArea ()) {
 			InputInteractions ();
-			//vectorDrawer.DrawInteractions ();
 			DrawInteractions();
 		}
 	}
@@ -150,14 +149,15 @@ public class LineDrawer : MonoBehaviour
 		Draw (); 
 
 
-		//vectorDrawer.undo ();
 
 
-		//			if (enableTextureDrawer) {
-		//				LateDraw ();
-		//
-		//				texturePainter.texture.Apply (false);
-		//			}
+
+//		if (enableTextureDrawer) {
+//			//LateDraw ();
+//			texturePainter.drawTexture(linePoints);
+//			texturePainter.texture.Apply (false);
+//				vectorDrawer.undo ();
+//		}
 
 
 
@@ -177,6 +177,12 @@ public class LineDrawer : MonoBehaviour
 		InputInteractions ();
 		collectCurvePoints ();
 		Draw ();
+
+//		if (enableTextureDrawer) {
+//			//LateDraw ();
+//			texturePainter.drawTexture(linePoints);
+//			texturePainter.texture.Apply (false);
+//		}
 		//vectorDrawer.drawMandala ();
 		//texturePainter.texture.Apply(false);
 
@@ -184,35 +190,23 @@ public class LineDrawer : MonoBehaviour
 	}
 
 	public void Draw(){
-		int counter = 0;
-
-
-
-
-		for (int i = 0; i < numOfLineRenderers; i++){
+			for (int counter = 0; counter < numOfLineRenderers; counter++){
 
 			calcSymmetricLine (counter, linePoints);
 
 			if (enableVectorDrawer)
-				vectorDrawer.drawMandala (vectorDrawer.lineRendererHolder[i].GetComponent<LineRenderer>(), linePoints);
+				vectorDrawer.drawMandala (vectorDrawer.lineRendererHolder[counter].GetComponent<LineRenderer>(), linePoints);
 
-			counter++;
+			if (enableTextureDrawer) {
+					texturePainter.drawTexture(linePoints);
+					texturePainter.texture.Apply (false);
+				
+			}
+				
+
 		}		
 	}
-
-//	public void LateDraw(){
-//		int counter = 0;
-//
-//		//var points = new Vector3[linePoints.Count];
-//		for (int i = 0; i < numOfLineRenderers; i++){
-//
-//			calcSymmetricLine (counter, linePoints);
-//			texturePainter.drawTexture (linePoints);
-//			counter++;
-//		}		
-//		
-//	}
-//
+		
 
 
 	public  List<Vector3> calcSymmetricLine(int cycle, List<Vector3> points)
@@ -233,45 +227,17 @@ public class LineDrawer : MonoBehaviour
 					vectorScale.x = scale;
 				}
 			}
-//			Debug.Log (angle);
+			Debug.Log (angle);
 
 
-			points[i] = Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), vectorScale);
+			points[i] = (Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), vectorScale));
 
 
 		}
 		return points;
 
 	}
-
-//	public  Vector3 [] calcSymmetricLine(int cycle, Vector3[] points)
-//	{
-//
-//		float scale = 1.0f;
-//
-//
-//		for (int i = 0; i < linePoints.Count; i++) {
-//			float angle = cycle*(360.0f/numOfLineRenderers);
-//
-//			//Inner Symmetry on / off
-//			if (numOfLineRenderers % 2 == 0 && mirrorSymmetry){
-//				if (cycle % 2 != 0) 
-//				{
-//					scale = -1.0f;
-//				}
-//			}
-//
-//			Vector3 scaleMe = new Vector3 (scale, 1.0f, 1.0f);
-//			points[i] = Vector3.Scale(MathHelper.rotatePoint(linePoints[i], angle), scaleMe);
-//
-//
-//		}
-//		return points;
-//
-//	}
-//
-
-
+		
 
 	bool isDrawArea(){
 

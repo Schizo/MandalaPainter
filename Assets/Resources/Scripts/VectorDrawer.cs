@@ -8,7 +8,6 @@ using DigitalRuby.FastLineRenderer;
 public class VectorDrawer:MonoBehaviour
 	{
 
-		//public List<Vector3> linePoints = new List<Vector3>();
 		public int numOfLineRenderers = 32;
 		public bool mirrorSymmetry = true;
 		public List<GameObject> lineRendererHolder = new List<GameObject> ();
@@ -81,47 +80,32 @@ public class VectorDrawer:MonoBehaviour
 
 
 
-		public static void smoothCurve(List<Vector3> ping, List<Vector3> pong, int times){
-			Debug.Log ("smoooth");
+	public static void smoothCurve(List<Vector3> ping, List<Vector3> pong, int times){
+		Debug.Log ("smoooth");
 
-			if (times < 1)
-				return;
+		if (times < 1)
+			return;
 
-			for (int i = 1; i < ping.Count ()-1; i++) {
+		for (int i = 1; i < ping.Count ()-1; i++) {
 
-				pong [i] = (ping [i - 1] + ping [i + 1]) / 2; //average neighbours
-
-			}
-			smoothCurve (pong, ping, times - 1);
+			pong [i] = (ping [i - 1] + ping [i + 1]) / 2; //average neighbours
 
 		}
+		smoothCurve (pong, ping, times - 1);
+
+	}
 
 	public void setBrushSize(float brushSize){
 		startWidth = brushSize;
 		endWidth = brushSize;
 		brushsize = brushSize;
-
-	
 	}
-
-//	public void Draw(){
-//		int counter = 0;
-//
-//		for (int i = 0; i < numOfLineRenderers; i++){
-//
-//			calcSymmetricLine (counter, linePoints);
-//
-//			vectorDrawer.drawMandala (vectorDrawer.lineRendererHolder[i].GetComponent<LineRenderer>(), linePoints);
-//
-//			counter++;
-//		}	
-//	
-//	}
+		
 
 	public void drawMandala(LineRenderer holder, List<Vector3> points){
 			holder.useWorldSpace = false;
 			holder.positionCount = points.Count();
-		holder.SetPositions(points.ToArray());
+			holder.SetPositions(points.ToArray());
 			holder.material.color = lineColor;
 			holder.startWidth = startWidth;
 			holder.endWidth = endWidth;
@@ -172,6 +156,7 @@ public class VectorDrawer:MonoBehaviour
 
 	public void Clear(){
 		lineRendererHolder.Clear();
+		Debug.Log ("Clearning All Lines...");
 		
 	}
 
@@ -191,57 +176,6 @@ public class VectorDrawer:MonoBehaviour
 		createDrawContainer(lineRendererHolder);
 	}
 
-//	public void DrawInteractions(){
-//
-//		//We start drawing
-//		var viewPortPosition = Camera.main.ScreenToViewportPoint (Input.mousePosition);
-//
-//
-//		if (Input.GetMouseButtonDown (0) && viewPortPosition.x > 0.1) {
-//			RaycastHit hit;
-//			if (Physics.Raycast (Camera.main.ScreenPointToRay (Input.mousePosition), out hit)) {
-//				//if (hit.collider == drawingBoard)
-//				Debug.Log (hit.collider);
-//			}
-//
-//			clickStarted = true;
-//
-//			for(int index = 0; index < numOfLineRenderers; index++){
-//				var lineRendererInstance = (GameObject)Instantiate (Resources.Load ("Prefabs/lineRendererObject"));
-//				lineRendererInstance.GetComponent<LineRenderer> ().material = testMaterial;
-//
-//
-//				lineRendererInstance.transform.parent = drawingLinesParent;
-//				lineRendererHolder.Add(lineRendererInstance);
-//			}
-//
-//			pushUndoStack (lineRendererHolder);
-//			createDrawContainer(lineRendererHolder);
-//			//DrawHandle();
-//
-//			//We are still drawing
-//		} 
-//		else if (clickStarted) {
-//			this.GetComponent<LineDrawer>().DrawHandle ();
-//		}
-//
-//		//Mouse down keep record of the curves
-//		if (Input.GetMouseButtonUp (0)) {
-//			List<Vector3> pong = new List<Vector3> (linePoints);
-//
-//			VectorDrawer.smoothGauss (linePoints, pong);
-////			drawMandala ();
-//
-//			clickStarted = false;
-//			colorPickerTint = GameObject.FindGameObjectWithTag ("colorPickerUI").GetComponent<ColorPickerAdvanced> ().RGBAColor;
-//
-//			linePoints.Clear ();
-//			lineRendererHolder.Clear ();
-//
-//
-//
-//		}
-//	}
 
 
 }

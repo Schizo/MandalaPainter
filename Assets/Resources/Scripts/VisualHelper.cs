@@ -41,7 +41,7 @@ public class VisualHelper : MonoBehaviour {
 		totalLineRenderers = 100;
 
 
-		DrawingLinesMirror = GameObject.Find ("DrawingLinesMirror");
+		DrawingLinesMirror = GameObject.FindGameObjectWithTag ("symmetryVisualizer");
 		DrawingLinesMirrorTransform =  DrawingLinesMirror.GetComponent<Transform>();
 
 		DrawingLinesStart = GameObject.Find ("DrawingLinesStart");
